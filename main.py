@@ -4,9 +4,9 @@ import sys
 import os
 
 try:
-	print "Video Quilting"
+    print "Video Quilting"
 except:
-	tb = sys.exc_info()[2]
+    tb = sys.exc_info()[2]
     tbinfo = traceback.format_tb(tb)[0]
     pymsg = "PYTHON ERRORS:\nTraceback Info:\n" + tbinfo + \
         "\nError Info:\n     " + \
