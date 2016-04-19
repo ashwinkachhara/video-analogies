@@ -8,6 +8,49 @@ R = Y = 0
 G = I = 1
 B = Q = 2
 
+
+def getFeatureVectorForRowCol(unfiltered, filtered, row, col):
+    rows = unfiltered.shape[0]
+    cols = unfiltered.shape[1]
+    channels = unfiltered.shape[2]
+
+    yiqMatrix = np.array([[0.299, 0.587, 0.114],
+                          [0.596, -0.274, -0.322],
+                          [0.211, -0.523, 0.312]], np.float32)
+    fv = []
+    # unfiltered image - non causal type ( entire 3x3 neighborhood)
+    for k in range(-1, 2):
+        for l in range(-1, 2):
+            pixel = np.array(
+                unfiltered[(row + k) % rows][(col + l) % cols], np.float32)
+            pixel = pixel / 255.0
+            yiqPixel = np.dot(yiqMatrix, pixel)
+            fv.append(yiqPixel[Y])
+            fv.append(yiqPixel[I])
+            fv.append(yiqPixel[Q])
+    
+    # filtered image - causal ( top 3 and left 1 neighbors only)
+    # top 3 neighbors
+    for l in range(-1, 2):
+        pixel = np.array(
+            filtered[(row - 1) % rows][(col + l) % cols], np.float32)
+        pixel = pixel / 255.0
+        yiqPixel = np.dot(yiqMatrix, pixel)
+        fv.append(yiqPixel[Y])
+        fv.append(yiqPixel[I])
+        fv.append(yiqPixel[Q])
+    # left neighbor
+    pixel2 = np.array(
+            filtered[row][(col - 1) % cols], np.float32)
+    pixel2 = pixel2 / 255.0
+    yiqPixel2 = np.dot(yiqMatrix, pixel2)
+    fv.append(yiqPixel2[Y])
+    fv.append(yiqPixel2[I])
+    fv.append(yiqPixel2[Q])
+    print("Fv:"+str(fv))
+    return fv
+
+
 def getAllFeatureVectors(unfiltered, filtered):
     fvUnfiltered = getFeatureVectors(unfiltered, NONCAUSAL)
     # print("unfilter:"+str(fvUnfiltered[0]))

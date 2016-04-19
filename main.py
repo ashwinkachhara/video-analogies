@@ -4,7 +4,7 @@ import sys
 import os
 import traceback
 
-from ann import ANN
+#from ann import ANN
 import featureVector
 
 try:
@@ -13,6 +13,7 @@ try:
     imageA1 = cv2.imread("Input/a1.jpg")
     imageB = cv2.imread("Input/b.jpg")
     fvs = featureVector.getAllFeatureVectors(imageA, imageA1)
+    fv = featureVector.getFeatureVectorForRowCol(imageB, imageB,0,0)
     print "Done"
 except:
     tb = sys.exc_info()[2]
