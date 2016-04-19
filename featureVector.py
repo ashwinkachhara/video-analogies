@@ -28,7 +28,7 @@ def getFeatureVectorForRowCol(unfiltered, filtered, row, col):
             fv.append(yiqPixel[Y])
             fv.append(yiqPixel[I])
             fv.append(yiqPixel[Q])
-    
+
     # filtered image - causal ( top 3 and left 1 neighbors only)
     # top 3 neighbors
     for l in range(-1, 2):
@@ -47,7 +47,7 @@ def getFeatureVectorForRowCol(unfiltered, filtered, row, col):
     fv.append(yiqPixel2[Y])
     fv.append(yiqPixel2[I])
     fv.append(yiqPixel2[Q])
-    print("Fv:"+str(fv))
+    # print("Fv:"+str(fv))
     return fv
 
 
