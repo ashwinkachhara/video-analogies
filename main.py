@@ -12,7 +12,7 @@ try:
     imageA = cv2.imread("Input/a.jpg")
     imageA1 = cv2.imread("Input/a1.jpg")
     imageB = cv2.imread("Input/b.jpg")
-    fvAA1 = featureVector.getFeatureVector(imageA, imageA1)
+    fvs = featureVector.getAllFeatureVectors(imageA, imageA1)
     print "Done"
 except:
     tb = sys.exc_info()[2]

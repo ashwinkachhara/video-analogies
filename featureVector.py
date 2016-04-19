@@ -10,14 +10,14 @@ B = Q = 2
 
 def getAllFeatureVectors(unfiltered, filtered):
     fvUnfiltered = getFeatureVectors(unfiltered, NONCAUSAL)
-    print("unfilter:"+str(fvUnfiltered))
+    # print("unfilter:"+str(fvUnfiltered[0]))
     fvFiltered = getFeatureVectors(filtered, CAUSAL)
-    print("filtered:"+str(fvFiltered))
+    # print("filtered:"+str(fvFiltered[0]))
     # join fvFiltered at the end of each row of fvUnfiltered
     completeFv = []
     for i in range(len(fvUnfiltered)):
         completeFv.append(fvUnfiltered[i] + fvFiltered[i])
-    print("complete:"+str(completeFv))
+    # print("complete:"+str(completeFv[0]))
     return completeFv
 
 
