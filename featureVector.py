@@ -8,15 +8,39 @@ R = Y = 0
 G = I = 1
 B = Q = 2
 
+yiqMatrix = np.array([[0.299, 0.587, 0.114],
+                      [0.596, -0.274, -0.322],
+                      [0.211, -0.523, 0.312]], np.float32)
+
+rgbMatrix = np.array([[1, 0.956, 0.621],
+                      [1, -0.272, -0.647],
+                      [1, -1.106, 1.703]], np.float32)
+
+'''
+return yiq as a tuple (y,i,q)
+'''
+def getPixelAsYIQ(image, row, col):
+    pixel = np.array(image[row][col], np.float32)
+    pixel = pixel / 255.0
+    yiqPixel = np.dot(yiqMatrix, pixel)
+    return (yiqPixel[0], yiqPixel[1], yiqPixel[2])
+
+'''
+yiq is an array of form [y, i ,q]
+return image with rgb value set for the given row, col
+'''
+def setPixelFromYIQ(yiq, image, row, col):
+    yiqPix = np.array(yiq,np.float32)
+    rgbPixel = np.dot(rgbMatrix, yiqPix)
+    rgbPixel = rgbPixel * 255
+    image[row][col] = rgbPixel
+    return image
 
 def getFeatureVectorForRowCol(unfiltered, filtered, row, col):
     rows = unfiltered.shape[0]
     cols = unfiltered.shape[1]
     channels = unfiltered.shape[2]
 
-    yiqMatrix = np.array([[0.299, 0.587, 0.114],
-                          [0.596, -0.274, -0.322],
-                          [0.211, -0.523, 0.312]], np.float32)
     fv = []
     # unfiltered image - non causal type ( entire 3x3 neighborhood)
     for k in range(-1, 2):
@@ -26,8 +50,8 @@ def getFeatureVectorForRowCol(unfiltered, filtered, row, col):
             pixel = pixel / 255.0
             yiqPixel = np.dot(yiqMatrix, pixel)
             fv.append(yiqPixel[Y])
-            fv.append(yiqPixel[I])
-            fv.append(yiqPixel[Q])
+            # fv.append(yiqPixel[I])
+            # fv.append(yiqPixel[Q])
 
     # filtered image - causal ( top 3 and left 1 neighbors only)
     # top 3 neighbors
@@ -37,16 +61,16 @@ def getFeatureVectorForRowCol(unfiltered, filtered, row, col):
         pixel = pixel / 255.0
         yiqPixel = np.dot(yiqMatrix, pixel)
         fv.append(yiqPixel[Y])
-        fv.append(yiqPixel[I])
-        fv.append(yiqPixel[Q])
+        # fv.append(yiqPixel[I])
+        # fv.append(yiqPixel[Q])
     # left neighbor
     pixel2 = np.array(
-            filtered[row][(col - 1) % cols], np.float32)
+        filtered[row][(col - 1) % cols], np.float32)
     pixel2 = pixel2 / 255.0
     yiqPixel2 = np.dot(yiqMatrix, pixel2)
     fv.append(yiqPixel2[Y])
-    fv.append(yiqPixel2[I])
-    fv.append(yiqPixel2[Q])
+    # fv.append(yiqPixel2[I])
+    # fv.append(yiqPixel2[Q])
     # print("Fv:"+str(fv))
     return fv
 
@@ -71,10 +95,11 @@ def getFeatureVectors(image, type=NONCAUSAL):
 
     yiqImage = np.zeros((rows, cols, channels), dtype=np.float32)
     yiqImage = image / 255.0
-
+    '''
     yiqMatrix = np.array([[0.299, 0.587, 0.114],
                           [0.596, -0.274, -0.322],
                           [0.211, -0.523, 0.312]], np.float32)
+    '''
     for i in range(rows):
         for j in range(cols):
             pixel = np.array(yiqImage[i][j])
@@ -88,12 +113,12 @@ def getFeatureVectors(image, type=NONCAUSAL):
                 for l in range(-1, 2):
                     pix = yiqImage[(i - 1) % rows][(j + l) % cols]
                     fv.append(pix[Y])
-                    fv.append(pix[I])
-                    fv.append(pix[Q])
+                    # v.append(pix[I])
+                    # fv.append(pix[Q])
                 pix2 = yiqImage[i][(j - 1) % cols]
                 fv.append(pix2[Y])
-                fv.append(pix2[I])
-                fv.append(pix2[Q])
+                # fv.append(pix2[I])
+                # fv.append(pix2[Q])
                 fvs.append(fv)
     else:
         # NON CAUSAL ( entire 3x3 neighbourhood)
@@ -104,8 +129,8 @@ def getFeatureVectors(image, type=NONCAUSAL):
                     for l in range(-1, 2):
                         pix = yiqImage[(i + k) % rows][(j + l) % cols]
                         fv.append(pix[Y])
-                        fv.append(pix[I])
-                        fv.append(pix[Q])
+                        # fv.append(pix[I])
+                        # fv.append(pix[Q])
                 fvs.append(fv)
     return fvs
     # cv2.imshow('check', yiqImage)
