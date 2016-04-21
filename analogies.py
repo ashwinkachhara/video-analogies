@@ -19,6 +19,8 @@ class Analogies:
         print("populated the ANN")
         self.ann.save()
         self.s = {}
+        for i in range(self.A.size):
+            self.s[i] = i
         self.K = 2
 
     def annFromFile(self, fsize):
@@ -26,6 +28,8 @@ class Analogies:
         self.ann.load('analogies.ann')
         print("Loaded the ANN")
         self.s = {}
+        for i in range(self.A.size):
+            self.s[i] = i
         self.K = 2
 
     def XYToLinear(self, x, y, imgshape):
@@ -56,6 +60,7 @@ class Analogies:
                 self.s[idx] = index
                 x,y = self.LinearToXY(index,self.ashape)
                 self.s[idx] = index
+                print x,y
                 # if x>=self.ashape[0] or y>=self.ashape[1]:
                 #     print "xy out of bounds",x,y,index
                 a1y,a1i,a1q = featureVector.getPixelAsYIQ(self.A1,x,y)
@@ -110,7 +115,7 @@ class Analogies:
         for l in range(-1, 2):
             i = (x - 1) % self.bshape[0]
             j = (y + l) % self.bshape[1]
-            p = self.s[self.XYToLinear(i,j,self.B1)]
+            p = self.s[self.XYToLinear(i,j,self.bshape)]
             i,j = self.LinearToXY(p, self.bshape)
             if i>=self.bshape[0] or j>=self.bshape[1]:
                 print "neighbor out of bounds",i,j,p
@@ -122,6 +127,8 @@ class Analogies:
         #left neighbor
         i = x;
         j = (y-1)%self.bshape[1]
+        p = self.s[self.XYToLinear(i,j,self.bshape)]
+        i,j = self.LinearToXY(p, self.bshape)
         fvij = featureVector.getFeatureVectorForRowCol(self.B.reshape(self.bshape),self.B1.reshape(self.bshape),i,j)
         diff = self.getDiff(fvq, fvij)
         if diff < minDiff:
