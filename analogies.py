@@ -6,6 +6,8 @@ class Analogies:
     def __init__(self, imageA, imageA1):
         self.A = imageA
         self.A1 = imageA1
+
+    def annFromFVs(self):
         # [for px in A, get featureVector]
         fvs = featureVector.getAllFeatureVectors(self.A,self.A1)
         # get dim
@@ -15,13 +17,21 @@ class Analogies:
         # add these feature vectors to ann
         self.ann.addVectors(fvs)
         print("populated the ANN")
+        self.ann.save()
         self.s = {}
         self.K = 2
 
-    def XYToLinear(self, x, y, img):
-        return x*img[1]+y
-    def LinearToXY(self, p, img):
-        return p/img[1], p%img[1]
+    def annFromFile(self, fsize):
+        self.ann = ANN(fsize)
+        self.ann.load('analogies.ann')
+        print("Loaded the ANN")
+        self.s = {}
+        self.K = 2
+
+    def XYToLinear(self, x, y, imgshape):
+        return x*imgshape[1]+y
+    def LinearToXY(self, p, imgshape):
+        return p/imgshape[1], p%imgshape[1]
 
     def getAnalogy(self, imageB):
         self.B = imageB
@@ -44,8 +54,9 @@ class Analogies:
                     print("loop",idx)
                 index = self.bestMatch(idx)
                 x,y = self.LinearToXY(index,self.ashape)
-                if x>=self.ashape[0] or y>=self.ashape[1]:
-                    print "xy out of bounds",x,y,index
+                self.s[idx] = index
+                # if x>=self.ashape[0] or y>=self.ashape[1]:
+                #     print "xy out of bounds",x,y,index
                 a1y,a1i,a1q = featureVector.getPixelAsYIQ(self.A1,x,y)
                 by,bi,bq = featureVector.getPixelAsYIQ(self.B,i,j)
                 featureVector.setPixelFromYIQ([a1y,bi,bq],self.B1,i,j)
@@ -65,15 +76,15 @@ class Analogies:
 
 
     def bestMatch(self,q):
-        p_app = self.bestApproximateMatch(q)
-        return p_app
-        (p_coh, d_coh) = self.bestCoherenceMatch(q)
+        p_app, d_app = self.bestApproximateMatch(q)
+        # return p_app
+        p_coh, d_coh = self.bestCoherenceMatch(q)
         # # d_app
         # # d_coh
-        # if d_coh <= d_app*(1+0.5*self.K):
-        #     return p_coh
-        # else:
-        #     return p_app
+        if d_coh <= d_app*(1+0.5*self.K):
+            return p_coh
+        else:
+            return p_app
 
     def bestApproximateMatch(self, q):
         # v = feature at q
@@ -81,7 +92,10 @@ class Analogies:
         if x>=self.bshape[0] or y>=self.bshape[1]:
             print "out of bounds",x,y,q
         v = featureVector.getFeatureVectorForRowCol(self.B.reshape(self.bshape),self.B1.reshape(self.bshape),x,y)
-        return self.ann.query(v)
+        p = self.ann.query(v)
+        x,y = self.LinearToXY(p,self.ashape)
+        v2 = featureVector.getFeatureVectorForRowCol(self.A.reshape(self.ashape),self.A1.reshape(self.ashape),x,y)
+        return p, self.getDiff(v,v2)
 
     def bestCoherenceMatch(self, q):
         # in nbd of q
@@ -99,7 +113,7 @@ class Analogies:
             diff = self.getDiff(fvq, fvij)
             if diff < minDiff:
                 minDiff = diff
-                minNeighbor = self.XYToLinear(i, j, self.B1)
+                minNeighbor = self.XYToLinear(i, j, self.bshape)
         #left neighbor
         i = x;
         j = (y-1)%self.bshape[1]
@@ -107,17 +121,14 @@ class Analogies:
         diff = self.getDiff(fvq, fvij)
         if diff < minDiff:
             minDiff = diff
-            minNeighbor = self.XYToLinear(i, j, self.B1)
-        return (minNeighbor, minDiff)
+            minNeighbor = self.XYToLinear(i, j, self.bshape)
+        # print(minNeighbor)
+        return self.s[minNeighbor], minDiff
 
 
 
-    def getDiff(fv1, fv2);
+    def getDiff(self, fv1, fv2):
         diffVec = np.array(fv1) - np.array(fv2)
         diffVec = diffVec**2
         diff = sum(diffVec)
         return diff
-
-
-
-

@@ -14,6 +14,10 @@ class ANN:
         match = self.ann.get_nns_by_vector(vector,1)[0]
         # return self.ann.get_item_vector(match),match
         return match
+    def save(self):
+        self.ann.save('analogies.ann')
+    def load(self,filename):
+        self.ann.load(filename)
 
 # if __name__ == "__main__":
 #     f = 40
