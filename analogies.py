@@ -43,6 +43,7 @@ class Analogies:
                 if idx%100000 == 0:
                     print("loop",idx)
                 index = self.bestMatch(idx)
+                self.s[idx] = index
                 x,y = self.LinearToXY(index,self.ashape)
                 if x>=self.ashape[0] or y>=self.ashape[1]:
                     print "xy out of bounds",x,y,index
@@ -95,6 +96,10 @@ class Analogies:
         for l in range(-1, 2):
             i = (x - 1) % self.bshape[0]
             j = (y + l) % self.bshape[1]
+            p = self.s[self.XYToLinear(i,j,self.B1)]
+            i,j = self.LinearToXY(p, self.bshape)
+            if i>=self.bshape[0] or j>=self.bshape[1]:
+                print "neighbor out of bounds",i,j,p
             fvij = featureVector.getFeatureVectorForRowCol(self.B.reshape(self.bshape),self.B1.reshape(self.bshape),i,j)
             diff = self.getDiff(fvq, fvij)
             if diff < minDiff:
