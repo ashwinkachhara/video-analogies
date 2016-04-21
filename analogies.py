@@ -46,7 +46,10 @@ class Analogies:
                 x,y = self.LinearToXY(index,self.ashape)
                 if x>=self.ashape[0] or y>=self.ashape[1]:
                     print "xy out of bounds",x,y,index
-                self.B1[i,j] = self.A1[x,y]
+                a1y,a1i,a1q = featureVector.getPixelAsYIQ(self.A1,x,y)
+                by,bi,bq = featureVector.getPixelAsYIQ(self.B,i,j)
+                featureVector.setPixelFromYIQ([a1y,bi,bq],self.B1,i,j)
+                # self.B1[i,j] = self.A1[x,y]
 
         # for idx,elem in enumerate(self.B):
         #     if idx%100000 == 0:
