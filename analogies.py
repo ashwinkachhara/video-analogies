@@ -19,14 +19,14 @@ class Analogies:
         print("populated the ANN")
         self.ann.save()
 
-        self.K = 2
+        self.K = 0.5
 
     def annFromFile(self, fsize):
         self.ann = ANN(fsize)
-        self.ann.load('analogies.ann')
+        self.ann.load('analogies-big.ann')
         print("Loaded the ANN")
 
-        self.K = 2
+        self.K = 0.5
 
     def XYToLinear(self, x, y, imgshape):
         return x*imgshape[1]+y
@@ -101,7 +101,7 @@ class Analogies:
         p_coh, d_coh = self.bestCoherenceMatch(q)
         # # d_app
         # # d_coh
-        if d_coh <= d_app*(1+self.K):
+        if d_coh < d_app*(1+0.5*self.K):
             return p_coh, "coh"
         else:
             return p_app, "app"
@@ -129,27 +129,29 @@ class Analogies:
         for l in range(-1, 2):
             i = (x - 1) % self.bshape[0]
             j = (y + l) % self.bshape[1]
-            p = self.s[self.XYToLinear(i,j,self.bshape)]
+            r = self.XYToLinear(i,j,self.bshape)
+            p = self.s[r] 
             i,j = self.LinearToXY(p, self.ashape)
             if i>=self.ashape[0] or j>=self.ashape[1]:
                 print "neighbor out of bounds",i,j,p
             fvij = featureVector.getFeatureVectorForRowCol(self.A.reshape(self.ashape),self.A1.reshape(self.ashape),i,j)
-            diff = self.getDiff(fvq, fvij)
+            diff = self.getDiff(fvij, fvq)
             if diff < minDiff:
                 minDiff = diff
                 minNeighbor = self.XYToLinear(i, j, self.ashape)
         #left neighbor
         i = x;
         j = (y-1)%self.bshape[1]
-        p = self.s[self.XYToLinear(i,j,self.bshape)]
+        r = self.XYToLinear(i,j,self.bshape)
+        p = self.s[r] 
         i,j = self.LinearToXY(p, self.ashape)
         fvij = featureVector.getFeatureVectorForRowCol(self.A.reshape(self.ashape),self.A1.reshape(self.ashape),i,j)
-        diff = self.getDiff(fvq, fvij)
+        diff = self.getDiff(fvij, fvq)
         if diff < minDiff:
             minDiff = diff
             minNeighbor = self.XYToLinear(i, j, self.ashape)
         # print(minNeighbor)
-        return self.s[minNeighbor], minDiff
+        return minNeighbor, minDiff
 
 
 
