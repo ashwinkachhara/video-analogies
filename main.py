@@ -19,6 +19,7 @@ imageB = cv2.imread("Input/b.jpg")
 # print "Feature Vector:",len(fv)
 analogies = Analogies(imageA,imageA1)
 analogies.annFromFile(13)
+# analogies.annFromFVs()
 imageB1 = analogies.getAnalogy(imageB)
 
 cv2.imwrite("Output/b1.jpg",imageB1)

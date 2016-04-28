@@ -18,18 +18,14 @@ class Analogies:
         self.ann.addVectors(fvs)
         print("populated the ANN")
         self.ann.save()
-        self.s = {}
-        for i in range(self.A.size):
-            self.s[i] = i
+
         self.K = 2
 
     def annFromFile(self, fsize):
         self.ann = ANN(fsize)
         self.ann.load('analogies.ann')
         print("Loaded the ANN")
-        self.s = {}
-        for i in range(self.A.size):
-            self.s[i] = i
+
         self.K = 2
 
     def XYToLinear(self, x, y, imgshape):
@@ -40,6 +36,12 @@ class Analogies:
     def getAnalogy(self, imageB):
         self.B = imageB
         self.B1 = np.zeros(self.B.shape)
+        self.s = {}
+        for i in range(self.B.size/3):
+            if i >= self.A.size/3:
+                self.s[i] = self.A.size/3-1
+            else:
+                self.s[i] = i
 
         self.ashape = self.A.shape
         self.bshape = self.B.shape
@@ -49,23 +51,35 @@ class Analogies:
         # self.B = self.B.flatten()
         # self.B1 = self.B1.flatten()
 
+        numcoh = 0
+        numapp = 0
+
         print("initialized")
-        print(self.bshape)
+        print self.A.size/3,self.B.size/3
         for i in range(self.bshape[0]):
             for j in range(self.bshape[1]):
                 idx = self.XYToLinear(i,j,self.bshape)
-                if idx%100000 == 0:
+                if idx%5000 == 0:
                     print("loop",idx)
-                index = self.bestMatch(idx)
+                index, which = self.bestMatch(idx)
                 self.s[idx] = index
                 x,y = self.LinearToXY(index,self.ashape)
                 self.s[idx] = index
-                print x,y
+                if which=="app":
+                    numapp = numapp+1
+                else:
+                    numcoh = numcoh+1
+                # print x,y
                 # if x>=self.ashape[0] or y>=self.ashape[1]:
                 #     print "xy out of bounds",x,y,index
+                # if which == "app":
                 a1y,a1i,a1q = featureVector.getPixelAsYIQ(self.A1,x,y)
                 by,bi,bq = featureVector.getPixelAsYIQ(self.B,i,j)
                 featureVector.setPixelFromYIQ([a1y,bi,bq],self.B1,i,j)
+                # else:
+                #     a1y,a1i,a1q = featureVector.getPixelAsYIQ(self.B,x,y)
+                #     by,bi,bq = featureVector.getPixelAsYIQ(self.B,i,j)
+                #     featureVector.setPixelFromYIQ([a1y,bi,bq],self.B1,i,j)
                 # self.B1[i,j] = self.A1[x,y]
 
         # for idx,elem in enumerate(self.B):
@@ -77,20 +91,20 @@ class Analogies:
         # self.A1 = self.A1.reshape(self.ashape)
         # self.B = self.B.reshape(self.bshape)
         # self.B1 = self.B1.reshape(self.bshape)
-
+        print numcoh,numapp
         return self.B1
 
 
     def bestMatch(self,q):
         p_app, d_app = self.bestApproximateMatch(q)
-        # return p_app
+        # return p_app, "app"
         p_coh, d_coh = self.bestCoherenceMatch(q)
         # # d_app
         # # d_coh
-        if d_coh <= d_app*(1+0.5*self.K):
-            return p_coh
+        if d_coh <= d_app*(1+self.K):
+            return p_coh, "coh"
         else:
-            return p_app
+            return p_app, "app"
 
     def bestApproximateMatch(self, q):
         # v = feature at q
@@ -116,24 +130,24 @@ class Analogies:
             i = (x - 1) % self.bshape[0]
             j = (y + l) % self.bshape[1]
             p = self.s[self.XYToLinear(i,j,self.bshape)]
-            i,j = self.LinearToXY(p, self.bshape)
-            if i>=self.bshape[0] or j>=self.bshape[1]:
+            i,j = self.LinearToXY(p, self.ashape)
+            if i>=self.ashape[0] or j>=self.ashape[1]:
                 print "neighbor out of bounds",i,j,p
-            fvij = featureVector.getFeatureVectorForRowCol(self.B.reshape(self.bshape),self.B1.reshape(self.bshape),i,j)
+            fvij = featureVector.getFeatureVectorForRowCol(self.A.reshape(self.ashape),self.A1.reshape(self.ashape),i,j)
             diff = self.getDiff(fvq, fvij)
             if diff < minDiff:
                 minDiff = diff
-                minNeighbor = self.XYToLinear(i, j, self.bshape)
+                minNeighbor = self.XYToLinear(i, j, self.ashape)
         #left neighbor
         i = x;
         j = (y-1)%self.bshape[1]
         p = self.s[self.XYToLinear(i,j,self.bshape)]
-        i,j = self.LinearToXY(p, self.bshape)
-        fvij = featureVector.getFeatureVectorForRowCol(self.B.reshape(self.bshape),self.B1.reshape(self.bshape),i,j)
+        i,j = self.LinearToXY(p, self.ashape)
+        fvij = featureVector.getFeatureVectorForRowCol(self.A.reshape(self.ashape),self.A1.reshape(self.ashape),i,j)
         diff = self.getDiff(fvq, fvij)
         if diff < minDiff:
             minDiff = diff
-            minNeighbor = self.XYToLinear(i, j, self.bshape)
+            minNeighbor = self.XYToLinear(i, j, self.ashape)
         # print(minNeighbor)
         return self.s[minNeighbor], minDiff
 
