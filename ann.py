@@ -15,7 +15,7 @@ class ANN:
         # return self.ann.get_item_vector(match),match
         return match
     def save(self):
-        self.ann.save('analogies.ann')
+        self.ann.save("analogies.ann")
     def load(self,filename):
         self.ann.load(filename)
 

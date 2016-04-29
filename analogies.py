@@ -23,7 +23,7 @@ class Analogies:
 
     def annFromFile(self, fsize):
         self.ann = ANN(fsize)
-        self.ann.load('analogies-big.ann')
+        self.ann.load("analogies.ann")
         print("Loaded the ANN")
 
         self.K = 0.5
@@ -130,7 +130,7 @@ class Analogies:
             i = (x - 1) % self.bshape[0]
             j = (y + l) % self.bshape[1]
             r = self.XYToLinear(i,j,self.bshape)
-            p = self.s[r] 
+            p = self.s[r]
             i,j = self.LinearToXY(p, self.ashape)
             if i>=self.ashape[0] or j>=self.ashape[1]:
                 print "neighbor out of bounds",i,j,p
@@ -143,7 +143,7 @@ class Analogies:
         i = x;
         j = (y-1)%self.bshape[1]
         r = self.XYToLinear(i,j,self.bshape)
-        p = self.s[r] 
+        p = self.s[r]
         i,j = self.LinearToXY(p, self.ashape)
         fvij = featureVector.getFeatureVectorForRowCol(self.A.reshape(self.ashape),self.A1.reshape(self.ashape),i,j)
         diff = self.getDiff(fvij, fvq)
