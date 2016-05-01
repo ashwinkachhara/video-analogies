@@ -42,10 +42,10 @@ def getFeatureVectorForRowCol(unfiltered, filtered, row, col):
     cols = unfiltered.shape[1]
     channels = unfiltered.shape[2]
 
-    unfiltlaplacian = cv2.cvtColor(unfiltered,cv2.COLOR_BGR2GRAY)
-    unfiltlaplacian = cv2.Laplacian(unfiltlaplacian,cv2.CV_32F)
-    filtlaplacian = cv2.cvtColor(filtered,cv2.COLOR_BGR2GRAY)
-    filtlaplacian = cv2.Laplacian(filtlaplacian,cv2.CV_32F)
+    # unfiltlaplacian = cv2.cvtColor(unfiltered,cv2.COLOR_BGR2GRAY)
+    # unfiltlaplacian = cv2.Laplacian(unfiltlaplacian,cv2.CV_32F)
+    # filtlaplacian = cv2.cvtColor(filtered,cv2.COLOR_BGR2GRAY)
+    # filtlaplacian = cv2.Laplacian(filtlaplacian,cv2.CV_32F)
 
     fv = []
     # unfiltered image - non causal type ( entire 3x3 neighborhood)
@@ -56,7 +56,7 @@ def getFeatureVectorForRowCol(unfiltered, filtered, row, col):
             pixel = pixel / 255.0
             yiqPixel = np.dot(yiqMatrix, pixel)
             fv.append(yiqPixel[Y])
-            fv.append(unfiltlaplacian[(row + k) % rows][(col + l) % cols])
+            # fv.append(unfiltlaplacian[(row + k) % rows][(col + l) % cols])
             # fv.append(yiqPixel[I])
             # fv.append(yiqPixel[Q])
 
@@ -68,7 +68,7 @@ def getFeatureVectorForRowCol(unfiltered, filtered, row, col):
         pixel = pixel / 255.0
         yiqPixel = np.dot(yiqMatrix, pixel)
         fv.append(yiqPixel[Y])
-        fv.append(filtlaplacian[(row - 1) % rows][(col + l) % cols])
+        # fv.append(filtlaplacian[(row - 1) % rows][(col + l) % cols])
         # fv.append(yiqPixel[I])
         # fv.append(yiqPixel[Q])
     # left neighbor
@@ -77,7 +77,7 @@ def getFeatureVectorForRowCol(unfiltered, filtered, row, col):
     pixel2 = pixel2 / 255.0
     yiqPixel2 = np.dot(yiqMatrix, pixel2)
     fv.append(yiqPixel2[Y])
-    fv.append(filtlaplacian[row][(col - 1) % cols])
+    # fv.append(filtlaplacian[row][(col - 1) % cols])
     # fv.append(yiqPixel2[I])
     # fv.append(yiqPixel2[Q])
     # print("Fv:"+str(fv))
@@ -102,8 +102,8 @@ def getFeatureVectors(image, type=NONCAUSAL):
     cols = image.shape[1]
     channels = image.shape[2]
 
-    imlaplacian = cv2.cvtColor(image,cv2.COLOR_RGB2GRAY)
-    imlaplacian = cv2.Laplacian(imlaplacian,cv2.CV_32F)
+    # imlaplacian = cv2.cvtColor(image,cv2.COLOR_RGB2GRAY)
+    # imlaplacian = cv2.Laplacian(imlaplacian,cv2.CV_32F)
 
     yiqImage = np.zeros((rows, cols, channels), dtype=np.float32)
     yiqImage = image / 255.0
@@ -125,12 +125,12 @@ def getFeatureVectors(image, type=NONCAUSAL):
                 for l in range(-1, 2):
                     pix = yiqImage[(i - 1) % rows][(j + l) % cols]
                     fv.append(pix[Y])
-                    fv.append(imlaplacian[(i - 1) % rows][(j + l) % cols])
+                    # fv.append(imlaplacian[(i - 1) % rows][(j + l) % cols])
                     # v.append(pix[I])
                     # fv.append(pix[Q])
                 pix2 = yiqImage[i][(j - 1) % cols]
                 fv.append(pix2[Y])
-                fv.append(imlaplacian[i][(j - 1) % cols])
+                # fv.append(imlaplacian[i][(j - 1) % cols])
                 # fv.append(pix2[I])
                 # fv.append(pix2[Q])
                 fvs.append(fv)
@@ -144,7 +144,7 @@ def getFeatureVectors(image, type=NONCAUSAL):
                     for l in range(-1, 2):
                         pix = yiqImage[(i + k) % rows][(j + l) % cols]
                         fv.append(pix[Y])
-                        fv.append(imlaplacian[(i + k) % rows][(j + l) % cols])
+                        # fv.append(imlaplacian[(i + k) % rows][(j + l) % cols])
                         # fv.append(pix[I])
                         # fv.append(pix[Q])
                 fvs.append(fv)

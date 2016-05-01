@@ -3,9 +3,13 @@ import featureVector
 import numpy as np
 
 class Analogies:
+    debug = True
     def __init__(self, imageA, imageA1):
         self.A = imageA
         self.A1 = imageA1
+
+    def quietMode(self):
+        self.debug = False
 
     def annFromFVs(self):
         # [for px in A, get featureVector]
@@ -16,7 +20,8 @@ class Analogies:
         self.ann = ANN(dim)
         # add these feature vectors to ann
         self.ann.addVectors(fvs)
-        print("populated the ANN")
+        if self.debug:
+            print("populated the ANN")
         self.ann.save()
 
         self.K = 0.5
@@ -24,7 +29,8 @@ class Analogies:
     def annFromFile(self, fsize):
         self.ann = ANN(fsize)
         self.ann.load("analogies.ann")
-        print("Loaded the ANN")
+        if self.debug:
+            print("Loaded the ANN")
 
         self.K = 0.5
 
@@ -54,12 +60,13 @@ class Analogies:
         numcoh = 0
         numapp = 0
 
-        print("initialized")
-        print self.A.size/3,self.B.size/3
+        if self.debug:
+            print("initialized")
+            print self.A.size/3,self.B.size/3
         for i in range(self.bshape[0]):
             for j in range(self.bshape[1]):
                 idx = self.XYToLinear(i,j,self.bshape)
-                if idx%5000 == 0:
+                if idx%5000 == 0 and self.debug:
                     print("loop",idx)
                 index, which = self.bestMatch(idx)
                 self.s[idx] = index
@@ -91,7 +98,8 @@ class Analogies:
         # self.A1 = self.A1.reshape(self.ashape)
         # self.B = self.B.reshape(self.bshape)
         # self.B1 = self.B1.reshape(self.bshape)
-        print numcoh,numapp
+        if self.debug:
+            print numcoh,numapp
         return self.B1
 
 
