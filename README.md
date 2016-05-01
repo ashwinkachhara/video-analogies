@@ -1,4 +1,4 @@
-﻿# Video-Quilting
+﻿# Video-Analogies
 
 # Usage for GIFs/Videos
 Extract frames from GIF/Video
