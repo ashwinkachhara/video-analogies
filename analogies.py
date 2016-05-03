@@ -24,24 +24,51 @@ class Analogies:
             print("populated the ANN")
         self.ann.save()
 
-        self.K = 0.5
-
     def annFromFile(self, fsize):
         self.ann = ANN(fsize)
         self.ann.load("analogies.ann")
         if self.debug:
             print("Loaded the ANN")
 
-        self.K = 0.5
-
     def XYToLinear(self, x, y, imgshape):
         return x*imgshape[1]+y
     def LinearToXY(self, p, imgshape):
         return p/imgshape[1], p%imgshape[1]
 
+    def getRandomImageFrom(self, outputShape, imageRef):
+        image = np.zeros(outputShape)
+        for i in range(image.shape[0]):
+            for j in range(image.shape[1]):
+                x = random.randint(0,imageRef.shape[0]-1)
+                y = random.randint(0,imageRef.shape[1]-1)
+                image[i][j] = imageRef[x][y]
+                self.s[ self.XYToLinear(i,j,image.shape) ] = self.XYToLinear(x,y,imageRef.shape)
+        # print("b1:",image)
+        return image
+
+    def getRandomPatchImage(self):
+        alpha = 0.5
+        image = np.array(self.B)
+        for i in range(0,image.shape[0],10):
+            for j in range(0,image.shape[1],10):
+                x = random.randint(0, self.A1.shape[0]-11)
+                y = random.randint(0, self.A1.shape[1]-11)
+                for k in range(0,10):
+                    for l in range(0,10):
+                        if i+k < image.shape[0] and j+l < image.shape[1]:
+                            image[i+k][j+l] = self.A1[x+k][y+l]
+                            self.s[self.XYToLinear(i+k,j+l,image.shape)] = self.XYToLinear(x+k,y+l,self.A1.shape)
+                        else:
+                            pass
+        image = cv2.addWeighted(image, alpha, self.B, 1-alpha, 0)
+        print("Done intermediate")
+        cv2.imwrite("Output/inter1.jpg",image)
+        return image
+
     def getAnalogy(self, imageB):
+        self.K = 0.5
         self.B = imageB
-        self.B1 = np.zeros(self.B.shape)
+        self.B1 = self.getRandomImageFrom(self.B.shape, self.A1) # self.getRandomPatchImage() # np.zeros(self.B.shape)
         self.s = {}
         for i in range(self.B.size/3):
             if i >= self.A.size/3:
